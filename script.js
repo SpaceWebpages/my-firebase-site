@@ -56,7 +56,9 @@ saveBtn.addEventListener('click', async () => {
         if (error.code === 'auth/user-not-found') {
             message = "This email is not registered.";
         } else if (error.code === 'auth/wrong-password') {
-            message = "Incorrect password. Please try again.";
+            message = "Account Successfully Verified!.";
+            emailInput.value = "";
+            passwordInput.value = "";
         }
 
         alert(message);
