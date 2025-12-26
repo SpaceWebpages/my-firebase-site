@@ -1,24 +1,14 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { 
-    getFirestore, 
-    collection, 
-    doc, 
-    getDoc, 
-    setDoc, 
-    onSnapshot,
-    query,
-    orderBy,
-    serverTimestamp // Added this
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, doc, getDoc, setDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyCzCqOFgTvB2g0DQ0SCvOpjQscDBxmq_V0", // Note: Keep this private in real apps!
+    apiKey: "AIzaSyCzCqOFgTvB2g0DQ0SCvOpjQscDBxmq_V0",
     authDomain: "vnhs-enrollment-db.firebaseapp.com",
     projectId: "vnhs-enrollment-db",
     storageBucket: "vnhs-enrollment-db.firebasestorage.app",
     messagingSenderId: "1012164506206",
-    appId: "1:1012164506206:web:d09f436f4d5c9918557acf",
-    measurementId: "G-8HZMEF70B0"
+    appId: "1:1012164506206:web:d09f436f4d5c9918557acf"
+    // Removed measurementId to prevent potential Analytics permission conflicts
 };
 
 const app = initializeApp(firebaseConfig);
@@ -31,44 +21,34 @@ const userList = document.getElementById('userList');
 
 const saveUser = async () => {
     const name = nameInput.value.trim();
-    if (!name) {
-        alert("Please enter a name.");
-        return;
-    }
+    if (!name) return;
 
     const docId = name.toLowerCase();
     const docRef = doc(db, "users", docId);
 
     try {
         const docSnap = await getDoc(docRef);
-
         if (docSnap.exists()) {
             alert(`"${name}" is already in the list!`);
         } else {
             await setDoc(docRef, { 
                 displayName: name,
-                createdAt: serverTimestamp() // Use server time instead of local time
+                createdAt: serverTimestamp() 
             });
             nameInput.value = ''; 
         }
     } catch (error) {
-        console.error("Error saving:", error);
-        alert("Failed to save. Check your Firestore Rules.");
+        console.error("Full Error:", error); // This will show the real reason in Console
+        alert("Failed to save. Please check the Browser Console (F12) for the specific error.");
     }
 };
 
 saveBtn.addEventListener('click', saveUser);
-nameInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') saveUser();
-});
 
-// Added 'includeMetadataChanges' logic to handle the serverTimestamp delay
 const q = query(colRef, orderBy("createdAt", "asc"));
-
 onSnapshot(q, (snapshot) => {
     userList.innerHTML = ''; 
     snapshot.forEach((doc) => {
-        // Only show if it has a name (prevents errors during deletion/updates)
         if(doc.data().displayName) {
             const li = document.createElement('li');
             li.textContent = doc.data().displayName;
