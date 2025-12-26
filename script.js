@@ -8,51 +8,49 @@ const firebaseConfig = {
     storageBucket: "vnhs-enrollment-db.firebasestorage.app",
     messagingSenderId: "1012164506206",
     appId: "1:1012164506206:web:d09f436f4d5c9918557acf"
-    // Removed measurementId to prevent potential Analytics permission conflicts
 };
 
+// Initialize
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const colRef = collection(db, 'users');
 
+// Elements
 const nameInput = document.getElementById('userName');
 const saveBtn = document.getElementById('saveBtn');
 const userList = document.getElementById('userList');
 
-const saveUser = async () => {
+// Save Function
+saveBtn.onclick = async () => {
     const name = nameInput.value.trim();
-    if (!name) return;
+    if (!name) return alert("Please enter a name");
 
     const docId = name.toLowerCase();
     const docRef = doc(db, "users", docId);
 
     try {
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-            alert(`"${name}" is already in the list!`);
-        } else {
-            await setDoc(docRef, { 
-                displayName: name,
-                createdAt: serverTimestamp() 
-            });
-            nameInput.value = ''; 
-        }
-    } catch (error) {
-        console.error("Full Error:", error); // This will show the real reason in Console
-        alert("Failed to save. Please check the Browser Console (F12) for the specific error.");
+        console.log("Attempting to save...");
+        await setDoc(docRef, { 
+            displayName: name, 
+            createdAt: serverTimestamp() 
+        });
+        nameInput.value = '';
+        console.log("Save successful!");
+    } catch (e) {
+        console.error("DETAILED ERROR:", e.code, e.message);
+        alert("Error: " + e.code); 
     }
 };
 
-saveBtn.addEventListener('click', saveUser);
-
+// Listen for Data
 const q = query(colRef, orderBy("createdAt", "asc"));
 onSnapshot(q, (snapshot) => {
-    userList.innerHTML = ''; 
-    snapshot.forEach((doc) => {
-        if(doc.data().displayName) {
-            const li = document.createElement('li');
-            li.textContent = doc.data().displayName;
-            userList.appendChild(li);
-        }
+    userList.innerHTML = '';
+    snapshot.forEach(d => {
+        const li = document.createElement('li');
+        li.textContent = d.data().displayName;
+        userList.appendChild(li);
     });
+}, (err) => {
+    console.error("LISTENER ERROR:", err.code);
 });
