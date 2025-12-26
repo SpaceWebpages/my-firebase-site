@@ -1,10 +1,7 @@
-// Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, doc, getDoc, setDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
+const firebaseConfig = {
     apiKey: "AIzaSyA_JTCBKnJ7zaz8wRSiCpLRU2RcQZ2catw",
     authDomain: "my-firebase-site-a35bb.firebaseapp.com",
     projectId: "my-firebase-site-a35bb",
@@ -13,7 +10,6 @@
     appId: "1:943328160156:web:9acc1c41989b21b3124059"
   };
 
-  // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const colRef = collection(db, 'users');
