@@ -19,8 +19,13 @@ const saveBtn = document.getElementById('saveBtn');
 const userList = document.getElementById('userList');
 
 const saveUser = async () => {
+    console.log("Button was clicked!"); // ADD THIS LINE
+    
     const name = nameInput.value.trim();
-    if (!name) return;
+    if (!name) {
+        console.log("Name field is empty");
+        return;
+    }
 
     const docId = name.toLowerCase();
     const docRef = doc(db, "users", docId);
@@ -55,3 +60,4 @@ onSnapshot(q, (snapshot) => {
         }
     });
 });
+
